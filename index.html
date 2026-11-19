@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mon Plan Finances</title>
+<meta name="description" content="Répartis ton revenu, fixe un objectif d'épargne et tiens une discipline adaptée à ton business.">
+<meta name="theme-color" content="#0b0f17">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/favicon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mon Plan">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+html{scroll-padding-top:70px}
+/* VOICE: terminal de trading — sombre, précis, chiffres qui claquent.
+   IDEA: un tableau de bord de marché appliqué à ton épargne : ton objectif est ton « actif ».
+   PICTURE: barre d'allocation façon carnet d'ordres + courbe verte lumineuse avec dégradé.
+   COLOUR and TYPE: nuit #0b0f17, panneaux #121826, vert hausse #16c784, rouge baisse #f0b90b, bleu #3b82f6; Inter + JetBrains Mono pour les chiffres.
+   LAYOUT: panneaux en grille, KPIs en tête, une colonne sur mobile. */
+:root{color-scheme:dark;--bg:#0b0f17;--ink:#e6ebf2;--mute:#8592a6;--con:#1f2838;--card:#121826;--card2:#182033;--y:#16c784;--up:#16c784;--down:var(--mute);--blue:#3b82f6;--ok:#16c784;--bad:var(--con)}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:radial-gradient(1200px 500px at 80% -10%,#13233f 0,transparent 60%),var(--bg);background-attachment:fixed;color:var(--ink);font:16px/1.55 "Inter",system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:1040px;margin:0 auto}
+.band{padding:clamp(22px,3.5vw,44px) max(4vw,14px) calc(clamp(22px,3.5vw,44px) + env(safe-area-inset-bottom))}
+.band+.band{border-top:1px solid var(--con)}
+h1{font-size:clamp(28px,5.5vw,42px);line-height:1.05;margin:0 0 6px;font-weight:700;text-wrap:balance;letter-spacing:-.02em}
+h2{font-size:clamp(22px,3.6vw,28px);line-height:1.1;margin:0 0 4px;font-weight:700;letter-spacing:-.01em}
+h3{font-size:18px}
+.lead{color:var(--mute);margin:0 0 18px;max-width:62ch}
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:calc(8px + env(safe-area-inset-top)) max(4vw,10px,env(safe-area-inset-right)) 8px max(4vw,10px,env(safe-area-inset-left));background:#0b0f17ee;backdrop-filter:blur(8px);border-bottom:1px solid var(--con)}
+.brand{font-weight:700;font-size:17px;letter-spacing:-.01em}
+.topbal{margin-left:auto;font:600 15px "JetBrains Mono",ui-monospace,monospace;color:var(--up);white-space:nowrap}
+.burger{background:transparent;border:1px solid var(--con);color:var(--ink);min-height:44px;width:44px;padding:0;display:grid;place-items:center}
+.scrim{position:fixed;inset:0;z-index:19;background:#000a;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer{position:fixed;top:0;bottom:0;left:0;z-index:20;width:min(300px,86vw);background:var(--card);border-right:1px solid var(--con);transform:translateX(-102%);transition:transform .25s ease;display:flex;flex-direction:column;padding:calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));overflow-y:auto}
+body.open .drawer{transform:none}body.open .scrim{opacity:1;pointer-events:auto}
+.dhead{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 14px;border-bottom:1px solid var(--con);margin-bottom:10px}
+.dl{display:flex;align-items:center;gap:14px;padding:12px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:500;font-size:16px;min-height:48px}
+.dl svg{color:var(--mute);flex:none}
+.dl:hover,.dl:focus-visible{background:var(--card2)}
+.dl.on{background:var(--card2);color:var(--up)}.dl.on svg{color:var(--up)}
+.dl em{margin-left:auto;font-style:normal;font:600 13px "JetBrains Mono",monospace;background:var(--con);color:var(--ink);border-radius:999px;padding:2px 9px}.dl em:empty{display:none}
+.dfoot{margin-top:auto;padding:14px 8px 4px;border-top:1px solid var(--con);color:var(--mute);font-size:13px}
+.dfoot b{display:block;font:700 20px "JetBrains Mono",monospace;color:var(--up)}
+@media(min-width:960px){.drawer{transform:none;top:0}.scrim,.burger,.top .brand{display:none}main,.top{margin-left:300px}}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}
+label{display:block;font-weight:500;font-size:13px;color:var(--mute);margin-bottom:6px}
+input,select{width:100%;font:500 16px "JetBrains Mono",ui-monospace,monospace;padding:11px 12px;min-height:46px;border:1px solid var(--con);border-radius:8px;background:var(--card);color:var(--ink);color-scheme:dark}
+select{font-family:"Inter",system-ui,sans-serif}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-color:var(--blue)}
+button{font:inherit;font-weight:600;min-height:46px;padding:10px 18px;border-radius:8px;border:1px solid var(--up);background:var(--up);color:#04130c;cursor:pointer}
+button:hover{filter:brightness(1.1)}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--con)}
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px;margin:14px 0 4px;padding:4px;background:var(--card);border:1px solid var(--con);border-radius:10px}
+.seg button{background:transparent;color:var(--mute);border-color:transparent;min-height:40px}
+.seg button[aria-pressed=true]{background:var(--card2);color:var(--up);border-color:var(--con)}
+.big{font:700 clamp(30px,7.5vw,50px)/1 "JetBrains Mono",ui-monospace,monospace;white-space:nowrap;color:var(--up)}
+.unit{font-size:.4em;font-weight:500;color:var(--mute)}
+.bar{display:flex;height:56px;border-radius:8px;overflow:hidden;margin:20px 0 10px;gap:2px;background:var(--bg)}
+.bar div{transition:flex-grow .5s}
+.env{display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:10px;align-items:start;padding:12px 4px;border-bottom:1px solid var(--con)}
+.env:hover{background:var(--card)}
+.dot{width:10px;height:10px;border-radius:2px;margin-top:7px}
+.env b{white-space:nowrap;font:600 16px "JetBrains Mono",ui-monospace,monospace}
+.env small{display:block;color:var(--mute);font-size:13px}
+.card{background:var(--card);border:1px solid var(--con);border-radius:10px;padding:16px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:10px;margin:18px 0}
+.kpis .card span{display:block;color:var(--mute);font-size:13px}
+.kpis .card strong{font:700 clamp(19px,3.6vw,24px) "JetBrains Mono",ui-monospace,monospace;white-space:nowrap}
+.hl{border-color:#16c78466;background:linear-gradient(180deg,#16c78418,var(--card));box-shadow:0 0 0 1px #16c78433,0 8px 30px -12px #16c78466}.hl strong{color:var(--up)}
+.verdict{padding:14px 16px;border-radius:10px;border:1px solid #16c78455;border-left:4px solid var(--ok);background:linear-gradient(90deg,#16c78414,var(--card) 60%);margin:12px 0}
+.verdict.no{border-color:var(--con);border-left:1px solid var(--con);background:var(--card)}
+.verdict a{color:var(--blue)!important}
+.fig{position:relative;min-height:290px;margin-top:10px;background:var(--card);border:1px solid var(--con);border-radius:10px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.miles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px;margin-top:12px}
+.miles strong{font-family:"JetBrains Mono",ui-monospace,monospace;color:var(--up)}
+ul.tips{padding-left:20px;margin:8px 0;color:#c7cfdb}ul.tips li{margin:6px 0}ul.tips li::marker{color:var(--up)}
+.check{display:flex;gap:12px;align-items:center;padding:10px 4px;border-bottom:1px solid var(--con);cursor:pointer;color:var(--ink);font-size:15px;font-weight:400;margin:0}
+.check input{width:22px;min-height:22px;height:22px;flex:none;accent-color:var(--up)}
+.progress{height:12px;border-radius:999px;background:var(--con);overflow:hidden;margin:12px 0}
+.progress div{height:100%;background:linear-gradient(90deg,#0e9f6e,var(--up));box-shadow:0 0 12px #16c78499;transition:width .5s}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.row>*{flex:1 1 160px}
+table{width:100%;border-collapse:collapse;margin-top:12px}td,th{padding:9px 6px;border-bottom:1px solid var(--con);text-align:left}th{color:var(--mute);font-weight:500;font-size:13px}td.n{text-align:right;white-space:nowrap;font-family:"JetBrains Mono",ui-monospace,monospace;color:var(--up)}
+.x{background:none;border:0;color:var(--mute);min-height:36px;padding:4px 10px}.x:hover{color:var(--down)}
+.note{font-size:13px;color:var(--mute);margin-top:16px}
+.pf{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:20px;align-items:center}
+.lbl{color:var(--mute);font-size:14px}
+.var{font:600 16px "JetBrains Mono",ui-monospace,monospace;margin-top:8px;color:var(--mute)}.var.up{color:var(--up)}
+.spark{min-height:170px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 18px;border-radius:8px;background:var(--up);color:#04130c;font-weight:700;text-decoration:none;flex:1 1 140px}
+.ghostb{background:transparent;color:var(--ink);border:1px solid var(--con)}
+.pos{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:12px 4px;border-bottom:1px solid var(--con)}
+.pos small{color:var(--mute);font-size:13px}.pos b{font:600 16px "JetBrains Mono",ui-monospace,monospace;text-align:right;white-space:nowrap}
+.pos .pb{grid-column:1/-1;height:6px;border-radius:9px;background:var(--con);overflow:hidden}.pos .pb i{display:block;height:100%;background:var(--up)}
+@media(max-width:600px){.pf{grid-template-columns:1fr}}
+main>section{display:none}main>section.cur{display:block}
+.band+.band{border-top:0}
+.grid.f{grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));align-items:end}
+details.more{background:var(--card);border:1px solid var(--con);border-radius:10px;margin-top:10px}
+details.more summary{cursor:pointer;padding:13px 16px;font-weight:600;min-height:48px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::after{content:"+";font:600 20px "JetBrains Mono",monospace;color:var(--mute)}
+details.more[open] summary::after{content:"−"}
+details.more>:not(summary){padding:0 16px 14px;margin-top:0}
+details.more ul.tips{padding-left:36px}
+@media(max-width:600px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpis .card{padding:12px}.kpis .card strong{font-size:clamp(14px,4.3vw,20px)}.band{padding-top:18px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(max-width:600px){.bar{height:44px}table{font-size:14px}.seg{display:flex}}
+</style>
+</head>
+<body>
+<header class="top"><button class="burger" id="burger" type="button" aria-label="Ouvrir le menu" aria-controls="drawer" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><strong class="brand">Mon Plan Finances</strong></header>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Menu"><div class="dhead"><strong class="brand">Mon Plan Finances</strong><button class="burger" id="closeD" type="button" aria-label="Fermer le menu"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+<nav aria-label="Sections"><a class="dl" href="#accueil" data-s="accueil"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/><path d="M6 6l9-3 1 3"/></svg><span>Portefeuille</span></a><a class="dl" href="#alertes" data-s="alertes"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/></svg><span>Alertes</span><em id="nAl"></em></a><a class="dl" href="#repartir" data-s="repartir"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v9h9"/><circle cx="12" cy="12" r="9"/></svg><span>Répartir</span></a><a class="dl" href="#objectif" data-s="objectif"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg><span>Objectif</span></a><a class="dl" href="#business" data-s="business"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 13h18"/></svg><span>Business</span></a><a class="dl" href="#discipline" data-s="discipline"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12l3 3 5-6"/></svg><span>Discipline</span></a><a class="dl" href="#suivi" data-s="suivi"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg><span>Suivi des versements</span></a></nav></aside>
+<main id="main">
+
+<section class="band" id="accueil"><div class="wrap">
+  <div class="pf">
+    <div>
+      <span class="lbl">Mon épargne totale</span>
+      <div class="big" id="hSolde"></div>
+      <div id="hVar" class="var"></div>
+      <div class="row" style="margin-top:16px;max-width:420px">
+        <a class="btn" href="#suivi">+ Verser</a><a class="btn ghostb" href="#objectif">Mon plan</a>
+      </div>
+    </div>
+    <div class="fig spark"><svg id="spark" role="img" aria-label="Évolution de ton épargne"></svg></div>
+  </div>
+  <div class="kpis" id="hKpis"></div>
+  <div class="card" id="installCard" style="display:none;margin-bottom:12px"><strong>Installer l'application</strong>
+    <p class="note" style="margin:4px 0 10px">Ajoute Mon Plan Finances à ton écran d'accueil : elle s'ouvre comme une app, même sans connexion.</p>
+    <button type="button" id="installBtn">Installer</button></div>
+  <h3 style="margin:8px 0 6px">Mes positions</h3>
+  <div id="hPos"></div>
+</div></section>
+
+<section class="band" id="alertes"><div class="wrap" id="alertBox"></div></section>
+
+<section class="band" id="repartir"><div class="wrap">
+  <h2>Répartir mon argent</h2>
+  <p class="lead">Entre ton revenu : il est découpé en enveloppes.</p>
+  <div class="grid f">
+    <div><label for="prof">Ta situation</label><select id="prof"><option value="etu">Étudiant(e)</option><option value="sal">Salarié(e)</option><option value="biz">Commerçant(e) / entrepreneur</option><option value="mix">Salarié(e) + activité à côté</option><option value="cherche">Sans emploi / en recherche</option><option value="retraite">Retraité(e)</option></select></div>
+    <div><label for="rev" id="revL">Revenu du mois (FCFA)</label><input id="rev" type="number" inputmode="numeric" min="0" step="1000" value="350000"></div>
+  </div>
+  <p class="note" id="profNote" style="margin-top:8px"></p>
+  <div class="seg" role="group" aria-label="Méthode de répartition" id="meth"></div>
+  <div class="bar" id="bar" aria-hidden="true"></div>
+  <div id="envs"></div>
+</div></section>
+
+<section class="band" id="objectif"><div class="wrap">
+  <h2>Mon objectif</h2>
+  <p class="lead">Montant, durée et activité.</p>
+  <div class="grid f">
+    <div><label for="cib">Montant visé (FCFA)</label><input id="cib" type="number" inputmode="numeric" min="0" step="10000" value="1000000"></div>
+    <div><label for="dur">Durée (mois)</label><input id="dur" type="number" inputmode="numeric" min="1" max="120" value="6"></div>
+    <div><label for="deja">Déjà épargné (FCFA)</label><input id="deja" type="number" inputmode="numeric" min="0" step="1000" value="50000"></div>
+    <div><label for="biz">Ton business / projet</label><select id="biz"></select></div>
+    <div><label for="taux">Rendement par mois (%)</label><input id="taux" type="number" inputmode="decimal" min="0" max="20" step="0.5" value="0"></div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div id="verdict"></div>
+  <div class="fig" id="fig"><svg id="chart" role="img" aria-label="Progression prévue de l'épargne vers l'objectif"></svg></div>
+  <div class="miles" id="miles"></div>
+</div></section>
+
+<section class="band" id="business"><div class="wrap">
+  <h2>Mon business</h2>
+  <p class="lead">Ce que ton activité rapporte et ce qu'il faut changer.</p>
+  <div class="grid f">
+    <div><label for="ven">Ventes moyennes par jour (FCFA)</label><input id="ven" type="number" inputmode="numeric" min="0" step="1000" value="40000"></div>
+    <div><label for="mar">Marge sur tes ventes (%)</label><input id="mar" type="number" inputmode="decimal" min="0" max="100" step="1" value="30"></div>
+    <div><label for="chg">Charges fixes du mois (FCFA)</label><input id="chg" type="number" inputmode="numeric" min="0" step="1000" value="120000"></div>
+    <div><label for="pso">Part du bénéfice pour l'objectif (%)</label><input id="pso" type="number" inputmode="numeric" min="0" max="100" step="5" value="40"></div>
+  </div>
+  <details class="more" style="margin-top:12px"><summary>C'est quoi la marge et les charges ?</summary><p class="note" style="margin:0">Marge : sur 1 000 FCFA vendus, ce qu'il te reste une fois la marchandise payée (ex. achat 700, vente 1 000 = 30 %). Charges fixes : loyer, salaires, électricité, transport, taxes.</p></details>
+  <div class="kpis" id="bkpis"></div>
+  <div id="bverdict"></div>
+  <details class="more"><summary>Augmenter les ventes</summary><ul class="tips" id="lv1"></ul></details>
+  <details class="more"><summary>Améliorer la marge</summary><ul class="tips" id="lv2"></ul></details>
+  <details class="more"><summary>Réduire les charges</summary><ul class="tips" id="lv3"></ul></details>
+  <details class="more"><summary>Plan d'action sur 4 semaines</summary><div class="miles" id="plan4" style="margin:0"></div></details>
+  <button class="ghost" id="useRev" type="button" style="margin-top:16px">Utiliser ce bénéfice comme revenu du mois</button>
+</div></section>
+
+<section class="band" id="discipline"><div class="wrap">
+  <h2>Ma discipline</h2>
+  <p class="lead" id="discLead"></p>
+  <div class="card"><strong>Ton rythme</strong><ul class="tips" id="rythme"></ul></div>
+  <details class="more"><summary>Conseils pour ton activité</summary><ul class="tips" id="conseils"></ul></details>
+  <details class="more"><summary id="profT">Conseils pour ton profil</summary><ul class="tips" id="profTips"></ul></details>
+  <h3 style="margin:26px 0 4px">Mes rappels</h3>
+  <p class="lead" style="margin-bottom:12px">Une alerte s'affiche si tu n'as pas versé après cette heure.</p>
+  <div class="grid f">
+    <div><label for="rh">Heure du versement</label><input id="rh" type="time" value="19:00"></div>
+    <div><label for="jp">Jour de paie ou de bourse (1 à 31)</label><input id="jp" type="number" inputmode="numeric" min="1" max="31" value="25"></div>
+    <div><label for="start">Début du plan</label><input id="start" type="date"></div>
+  </div>
+  <div class="card" style="margin-top:12px" id="notifCard"><strong>Notifications</strong>
+    <p class="note" style="margin:4px 0 10px" id="notifTxt">Reçois une notification quand un versement ou un engagement est en retard.</p>
+    <button type="button" id="notifBtn">Activer les notifications</button></div>
+  <h3 style="margin:26px 0 4px">Mes engagements de la semaine</h3>
+  <div id="habits"></div>
+</div></section>
+
+<section class="band" id="suivi"><div class="wrap">
+  <h2>Suivi des versements</h2>
+  <p class="lead">Note chaque montant mis de côté.</p>
+  <form class="row" id="fv">
+    <div><label for="vm">Montant versé (FCFA)</label><input id="vm" type="number" inputmode="numeric" min="1" step="1" required></div>
+    <div><label for="vd">Date</label><input id="vd" type="date"></div>
+    <button type="submit" style="flex:0 0 auto">Ajouter</button>
+  </form>
+  <table><thead><tr><th>Date</th><th style="text-align:right">Montant</th><th></th></tr></thead><tbody id="lst"></tbody></table>
+  <p id="empty" class="note">Aucun versement encore. Commence aujourd'hui, même petit : c'est la régularité qui compte.</p>
+  <p class="note">Tes chiffres restent enregistrés sur ce téléphone uniquement. Les conseils sont des repères généraux, pas un conseil financier personnalisé.</p>
+  <button class="ghost" id="reset" type="button">Tout effacer</button>
+</div></section>
+
+</main>
+<script>
+{
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n).toLocaleString('fr-FR').replace(/ /g,' ')+' FCFA';
+const C=['#3b82f6','#a855f7','#f0b90b','#16c784','#22d3ee','#64748b'];
+const METHODS={
+ equil:{nom:'Équilibrée',p:{besoins:50,envies:15,urgence:10,invest:15,famille:10}},
+ prud:{nom:'Prudente',p:{besoins:55,envies:10,urgence:20,invest:10,famille:5}},
+ amb:{nom:'Bâtisseur',p:{besoins:45,envies:5,urgence:10,invest:30,famille:10}}
+};
+const ENV={
+ besoins:{n:'Besoins essentiels',d:'Loyer, nourriture, transport, factures, école.',c:C[0]},
+ envies:{n:'Plaisirs',d:'Sorties, habits, loisirs — sans culpabilité, mais pas plus.',c:C[1]},
+ urgence:{n:"Fonds d'urgence",d:'Objectif : 3 mois de besoins. Ne pas toucher sauf imprévu.',c:C[2]},
+ invest:{n:'Investissement / objectif',d:'Va directement vers ton objectif ci-dessous.',c:C[3]},
+ famille:{n:'Famille & solidarité',d:'Aides, cotisations, dons : prévus, donc maîtrisés.',c:C[4]}
+};
+const BIZ={
+ commerce:{n:'Commerce / boutique',jours:26,ry:'quotidien',re:40,c:['Sépare la caisse du business et ton argent personnel : deux pochettes, deux comptes.','Note chaque vente et chaque achat le jour même (cahier ou téléphone).','Réinvestis une partie fixe de la marge dans le stock qui tourne le plus vite.','Évite le crédit aux clients sans date de remboursement écrite.']},
+ restau:{n:'Restauration / alimentation',jours:26,ry:'quotidien',re:35,c:['Calcule le coût de revient de chaque plat : ingrédients + gaz + emballage.','Achète en gros les produits qui se conservent, au jour le jour les frais.','Garde une réserve pour le matériel (congélateur, gaz, ustensiles).','Suis tes 3 plats les plus rentables et mets-les en avant.']},
+ transport:{n:'Transport (taxi, moto, livraison)',jours:26,ry:'quotidien',re:30,c:['Mets de côté chaque jour une provision entretien / pannes avant toute dépense.','Note le kilométrage et le carburant pour connaître ton vrai bénéfice.','Prévois assurance et papiers à l\'avance pour ne pas perdre de jours de travail.','Fixe ton versement journalier dès la fin de la journée, pas le lendemain.']},
+ agri:{n:'Agriculture / élevage',jours:30,ry:'saisonnier',re:50,c:['Tes revenus arrivent par saison : épargne plus fort après chaque récolte ou vente.','Prévois intrants, aliments et soins vétérinaires du cycle suivant avant de dépenser.','Diversifie : une culture rapide pour la trésorerie, une plus longue pour le gain.','Vends en groupe ou en coopérative pour mieux négocier.']},
+ service:{n:'Services / numérique / freelance',jours:22,ry:'hebdomadaire',re:25,c:['Facture avec une date de paiement et relance poliment à J+7.','Garde 1 mois de charges d\'avance : les clients paient parfois en retard.','Investis dans ce qui augmente ton tarif : formation, matériel, visibilité.','Vire ton épargne le jour même où un client paie.']},
+ immo:{n:'Projet perso (terrain, maison, véhicule)',jours:30,ry:'mensuel',re:0,c:['Automatise : virement ou dépôt dès le jour de la paie.','Garde cet argent sur un compte séparé, difficile d\'accès.','Une tontine peut aider à tenir, si le groupe est fiable et les règles écrites.','Vérifie les documents (titre foncier, carte grise) avant tout paiement.']}
+};
+const LEV={
+ commerce:{v:['Ajoute 2 ou 3 produits complémentaires à ceux qui se vendent déjà (ex. piles avec les torches).','Vends aussi sur WhatsApp et Facebook : photos des nouveautés chaque matin, livraison dans le quartier.','Fidélise : carte « 10 achats = 1 cadeau » pour les clients réguliers.'],m:['Achète en plus grande quantité ou en groupe avec d\'autres commerçants pour baisser le prix d\'achat.','Repère les produits à faible marge et remplace-les ou augmente un peu leur prix.','Vends des lots (3 pour…) plutôt qu\'à l\'unité avec grosse remise.'],c:['Compare les fournisseurs tous les trimestres.','Limite les pertes : produits périmés, vols, crédit non remboursé.','Regroupe tes trajets d\'approvisionnement.']},
+ restau:{v:['Lance une formule du midi à prix fixe pour les travailleurs du coin.','Prends des commandes par WhatsApp la veille et livre au bureau.','Propose un service traiteur pour les fêtes, deuils et réunions.'],m:['Fixe chaque prix à au moins 3 fois le coût des ingrédients.','Mets en avant tes plats les plus rentables, retire ceux qui ne rapportent rien.','Réduis le gaspillage : prépare selon les commandes, réutilise les restes autorisés.'],c:['Achète gaz et produits secs en gros.','Négocie le loyer ou partage l\'espace en soirée.','Entretiens ton matériel pour éviter les grosses pannes.']},
+ transport:{v:['Garde des clients fixes : écoliers, employés, commerçants (abonnement à la semaine).','Ajoute la livraison de colis pendant les heures creuses.','Inscris-toi sur les applications de courses et livraison actives dans ta ville.'],m:['Évite de rouler à vide : planifie les trajets retour.','Fixe des tarifs clairs pour les longues distances et les heures de nuit.','Travaille aux heures de pointe, repose-toi aux heures creuses.'],c:['Entretien préventif (vidange, pneus) : moins cher que la panne.','Conduite souple : jusqu\'à 15 % de carburant en moins.','Compare les assurances chaque année.']},
+ agri:{v:['Transforme une partie de la production (jus, farine, fumé, séché) pour la vendre plus cher.','Vends directement aux restaurants, marchés et particuliers plutôt qu\'aux intermédiaires.','Ajoute un cycle court (légumes feuilles, volailles) pour avoir des ventes tout le temps.'],m:['Stocke pour vendre hors saison, quand les prix montent.','Améliore les semences ou races : meilleur rendement pour le même travail.','Vends en coopérative pour peser dans la négociation.'],c:['Fabrique ton compost ou une partie de l\'aliment du bétail.','Achète les intrants en groupe.','Prévention sanitaire des animaux : moins de pertes.']},
+ service:{v:['Demande à chaque client satisfait de te recommander à 2 personnes.','Crée une offre mensuelle (abonnement) au lieu de missions ponctuelles.','Montre tes réalisations sur LinkedIn, Facebook ou WhatsApp chaque semaine.'],m:['Augmente tes tarifs de 10 à 20 % pour les nouveaux clients.','Fais payer un acompte de 30 à 50 % avant de commencer.','Vends des forfaits (pack) plutôt qu\'à l\'heure.'],c:['Annule les abonnements et outils inutilisés.','Travaille depuis chez toi ou en espace partagé.','Évite les clients qui paient toujours en retard.']},
+ immo:{v:['Lance une petite activité du soir ou du week-end : vente en ligne, services, cours.','Valorise une compétence que tu as déjà (couture, coiffure, informatique, cuisine).','Revends ce que tu n\'utilises plus.'],m:['Négocie ton salaire ou une prime avec des résultats chiffrés.','Cherche des missions mieux payées dans ton domaine.','Forme-toi à une compétence recherchée.'],c:['Revois forfaits téléphone et abonnements.','Cuisine plus, mange moins dehors.','Rejoins une tontine pour forcer l\'épargne sans frais.']}
+};
+const PROF={
+ etu:{n:'étudiant(e)',rl:'Argent reçu ce mois : bourse, parents, petits boulots (FCFA)',d:{besoins:10,envies:-5,famille:-5},note:'Profil étudiant : plus de place pour les besoins (logement, transport, fournitures), moins de pression sur la famille. Commence par un objectif modeste (50 000 à 200 000 FCFA) : l\'habitude compte plus que le montant.',t:['Dès que la bourse ou l\'argent des parents arrive, mets ta part épargne de côté avant tout achat.','Petits boulots possibles : cours particuliers, saisie et mise en page, vente en ligne, community management, aide aux commerçants.','Achète les livres d\'occasion, partage les photocopies, profite des tarifs étudiants.','Ton meilleur investissement maintenant : tes compétences (informatique, langues, un métier).','Évite de prêter de l\'argent sans date de remboursement, même entre amis.']},
+ sal:{n:'salarié(e)',rl:'Salaire net du mois (FCFA)',d:{},note:'Profil salarié : revenu régulier, donc idéal pour un versement automatique le jour de la paie.',t:['Programme un virement automatique vers un compte épargne le jour de la paie.','Ne compte pas sur les primes pour vivre : mets-les directement dans l\'objectif.','Prépare-toi à une baisse de revenu : vise 3 à 6 mois de dépenses en fonds d\'urgence.','Une activité à côté peut accélérer l\'objectif : regarde l\'étape Business.']},
+ biz:{n:'commerçant(e) / entrepreneur',rl:'Ce que tu te verses ce mois (FCFA)',d:{urgence:5,envies:-5},note:'Profil entrepreneur : revenus variables, donc fonds d\'urgence renforcé. Remplis l\'étape Business et utilise ton bénéfice comme revenu.',t:['Verse-toi un « salaire » fixe chaque mois, même petit, et laisse le reste dans l\'activité.','Les bons mois, épargne plus : ils paient les mauvais mois.','Garde les comptes du business et ton argent personnel séparés.','Vise 6 mois de charges en réserve.']},
+ mix:{n:'salarié(e) avec activité',rl:'Salaire + gains de l\'activité ce mois (FCFA)',d:{},note:'Profil mixte : le salaire couvre les besoins, l\'activité peut financer l\'objectif.',t:['Laisse le salaire payer la vie courante et mets la plupart des gains de l\'activité dans l\'objectif.','Ne quitte pas ton emploi avant que l\'activité rapporte au moins ton salaire pendant 6 mois.','Bloque des créneaux fixes pour l\'activité pour éviter l\'épuisement.']},
+ cherche:{n:'sans emploi / en recherche',rl:'Argent disponible ce mois : aides, petits travaux, famille (FCFA)',d:{besoins:15,envies:-5,invest:-10},note:'Profil en recherche : priorité aux besoins et au fonds d\'urgence. L\'objectif avance plus doucement, c\'est normal.',t:['Priorité : couvrir l\'essentiel et protéger ton fonds d\'urgence.','Une petite activité génératrice de revenus peut démarrer avec peu : voir l\'étape Business.','Note chaque dépense, même 100 FCFA : c\'est là que l\'argent s\'échappe.','Formations gratuites en ligne : un bon moyen d\'augmenter tes chances.']},
+ retraite:{n:'retraité(e)',rl:'Pension et autres revenus du mois (FCFA)',d:{besoins:5,urgence:5,invest:-10},note:'Profil retraité : sécurité d\'abord, réserve santé renforcée, placements sans risque.',t:['Garde une réserve santé facile d\'accès.','Évite les placements promettant de gros gains rapides : ce sont souvent des arnaques.','Un revenu régulier (location, petite activité) vaut mieux qu\'un gros montant risqué.','Prépare la transmission : documents et dettes en ordre.']}
+};
+const HABITS=['Je verse mon montant prévu au bon rythme','Je note toutes mes dépenses','Je ne touche pas au fonds d\'urgence','Je refuse un achat impulsif','Je sépare argent du business et argent perso','Je relis mon objectif et ma progression'];
+
+let S={rh:'19:00',jp:25,start:new Date().toISOString().slice(0,10),hw:'',rev:350000,prof:'sal',meth:'equil',cib:1000000,dur:6,deja:50000,biz:'commerce',taux:0,ven:40000,mar:30,chg:120000,pso:40,v:[],h:{}};
+try{Object.assign(S,JSON.parse(localStorage.getItem('planfin')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('planfin',JSON.stringify(S))}catch(e){}};
+
+$('biz').innerHTML=Object.entries(BIZ).map(([k,b])=>`<option value="${k}">${b.n}</option>`).join('');
+const wk=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return d.toISOString().slice(0,10)};
+if(S.hw!==wk()){S.h={};S.hw=wk();save()}
+['rev','prof','cib','dur','deja','biz','taux','ven','mar','chg','pso','rh','jp','start'].forEach(k=>{$(k).value=S[k];$(k).addEventListener('input',()=>{S[k]=$(k).type==='number'?Math.max(0,+$(k).value||0):$(k).value;save();render()})});
+$('vd').valueAsDate=new Date();
+
+function plan(){
+ const p={...METHODS[S.meth].p}, dl=(PROF[S.prof]||PROF.sal).d;
+ for(const k in dl)p[k]=Math.max(0,p[k]+dl[k]);
+ const r=S.taux/100, n=Math.max(1,S.dur), T=S.cib, D=S.deja;
+ const cap=S.rev*p.invest/100;
+ const g=(1+r)**n;
+ let need=r?(T-D*g)*r/(g-1):(T-D)/n; need=Math.max(0,need);
+ let nCap=Infinity;
+ if(cap>0){nCap=r?Math.log((T*r+cap)/(D*r+cap))/Math.log(1+r):(T-D)/cap;nCap=Math.max(0,Math.ceil(nCap))}
+ return{p,r,n,T,D,cap,need,nCap};
+}
+function bal(D,P,r,m){let b=D;for(let i=0;i<m;i++)b=b*(1+r)+P;return b}
+
+function render(){
+ const P=plan(), b=BIZ[S.biz];
+ $('meth').innerHTML=Object.entries(METHODS).map(([k,m])=>`<button type="button" data-m="${k}" aria-pressed="${k===S.meth}">${m.nom}</button>`).join('');
+ $('bar').innerHTML=Object.entries(P.p).map(([k,v])=>`<div style="flex-grow:${v};background:${ENV[k].c}"></div>`).join('');
+ $('envs').innerHTML=Object.entries(P.p).map(([k,v])=>`<div class="env"><span class="dot" style="background:${ENV[k].c}"></span><div><strong>${ENV[k].n}</strong> · ${v} %<small>${ENV[k].d}</small></div><b>${fmt(S.rev*v/100)}</b></div>`).join('');
+
+ const per=P.need, j=b.jours;
+ $('kpis').innerHTML=`<div class="card hl"><span>À mettre de côté par mois</span><strong>${fmt(per)}</strong></div>
+  <div class="card"><span>Par semaine</span><strong>${fmt(per*12/52)}</strong></div>
+  <div class="card"><span>Par jour de travail (${j} j/mois)</span><strong>${fmt(per/j)}</strong></div>
+  <div class="card"><span>Reste à trouver</span><strong>${fmt(Math.max(0,P.T-P.D))}</strong></div>`;
+
+ let v;
+ if(P.T<=P.D) v=`<div class="verdict">Objectif déjà atteint avec ton épargne actuelle. Fixe-toi un nouveau palier !</div>`;
+ else if(P.need<=P.cap) v=`<div class="verdict"><strong>C'est faisable.</strong> Ton enveloppe investissement (${fmt(P.cap)}/mois) couvre l'effort demandé. Le surplus de ${fmt(P.cap-P.need)} peut grossir ton fonds d'urgence ou accélérer l'objectif.</div>`;
+ else{const pct=S.rev?Math.ceil(P.need/S.rev*100):0;
+  v=`<div class="verdict no"><strong>Trop serré tel quel.</strong> Il faut ${fmt(P.need)}/mois mais ton enveloppe investissement est de ${fmt(P.cap)}. Trois options :<ul class="tips"><li>Allonger la durée à <strong>${isFinite(P.nCap)?P.nCap+' mois':'—'}</strong> avec ton rythme actuel.</li><li>Passer à la méthode « Bâtisseur » ou réduire les plaisirs (il faudrait ${pct} % du revenu).</li><li>Augmenter ton revenu : ${fmt(P.need-P.cap)} de plus par mois via ton activité.</li></ul></div>`}
+ $('verdict').innerHTML=v;
+
+ const today=new Date(), ms=[.25,.5,.75,1];
+ $('miles').innerHTML=ms.map(f=>{let m=0;const tgt=P.D+(P.T-P.D)*f;while(m<P.n&&bal(P.D,P.need,P.r,m)<tgt-1)m++;const d=new Date(today.getFullYear(),today.getMonth()+m,today.getDate());
+  return`<div class="card"><span style="color:var(--mute);font-size:14px">Palier ${f*100} %</span><br><strong>${fmt(tgt)}</strong><br><span style="font-size:14px">vers ${d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</span></div>`}).join('');
+ draw();
+
+ renderBiz(P,b);
+ const pr=PROF[S.prof]||PROF.sal;
+ $('revL').textContent=pr.rl; $('profNote').textContent=pr.note;
+ $('profT').textContent='Conseils pour un(e) '+pr.n; $('profTips').innerHTML=pr.t.map(x=>`<li>${x}</li>`).join('');
+ renderAlerts(P,b);
+ renderHome(P,b);
+ $('discLead').textContent=`Pour « ${b.n} », le bon rythme est ${rythmeOf(b)}. La règle : on épargne d'abord, on dépense ensuite.`;
+ $('conseils').innerHTML=b.c.map(x=>`<li>${x}</li>`).join('');
+ $('habits').innerHTML=HABITS.map((h,i)=>`<label class="check"><input type="checkbox" data-h="${i}" ${S.h[i]?'checked':''}> ${h}</label>`).join('')+`<p class="note">${Object.values(S.h).filter(Boolean).length}/${HABITS.length} engagements tenus cette semaine.</p>`;
+
+ const L=[...S.v].map((x,i)=>({...x,i})).sort((a,c)=>c.d.localeCompare(a.d));
+ $('lst').innerHTML=L.map(x=>`<tr><td>${new Date(x.d).toLocaleDateString('fr-FR')}</td><td class="n">${fmt(x.m)}</td><td class="n"><button class="x" data-del="${x.i}" aria-label="Supprimer">✕</button></td></tr>`).join('');
+ $('empty').style.display=L.length?'none':'block';
+}
+
+function renderBiz(P,b){
+ const j=b.jours, m=S.mar/100, part=S.pso/100;
+ const ca=S.ven*j, marge=ca*m, ben=marge-S.chg, apport=Math.max(0,ben)*part, need=P.need;
+ $('bkpis').innerHTML=`<div class="card"><span>Chiffre d'affaires du mois</span><strong>${fmt(ca)}</strong></div>
+  <div class="card"><span>Bénéfice net du mois</span><strong style="color:inherit">${fmt(ben)}</strong></div>
+  <div class="card"><span>Apport à l'objectif (${S.pso} %)</span><strong>${fmt(apport)}</strong></div>
+  <div class="card hl"><span>Ventes à faire par jour</span><strong>${m>0&&part>0?fmt((need/part+S.chg)/(j*m)):'—'}</strong></div>`;
+ let v;
+ if(P.T<=P.D) v=`<div class="verdict">Objectif déjà atteint. Garde ce rythme pour le palier suivant.</div>`;
+ else if(part<=0) v=`<div class="verdict no"><strong>Tu ne réserves rien de ton bénéfice pour l'objectif.</strong> Mets au moins 20 à 40 % dans « Part du bénéfice pour l'objectif ».</div>`;
+ else if(ben<=0) v=`<div class="verdict no"><strong>Ton activité ne dégage pas encore de bénéfice.</strong> Les charges (${fmt(S.chg)}) dépassent la marge (${fmt(marge)}). Priorité absolue : atteindre au moins ${m>0?fmt(S.chg/(j*m)):'—'} de ventes par jour pour couvrir les charges, avant de penser à l'objectif.</div>`;
+ else if(apport>=need) v=`<div class="verdict"><strong>Ton business peut financer l'objectif.</strong> Il apporte ${fmt(apport)}/mois pour ${fmt(need)} nécessaires. Tu as même ${fmt(apport-need)} de marge de sécurité : tiens le rythme et tu y es en ${P.n} mois.</div>`;
+ else{
+  const gap=need-apport, benNeed=need/part;
+  const ventes=m>0?(benNeed+S.chg)/(j*m):Infinity;
+  const margeNeed=ca>0?(benNeed+S.chg)/ca*100:Infinity;
+  const coupe=benNeed-ben;
+  const partNeed=need/ben*100;
+  const mixC=Math.min(S.chg*0.3,(benNeed-ben)/2);
+  const mix=m>0?(benNeed-ben-mixC)/(j*m):0;
+  const opts=[`<li><strong>Ventes :</strong> passer de ${fmt(S.ven)} à <strong>${fmt(ventes)}</strong> par jour (+${S.ven?Math.round((ventes/S.ven-1)*100):'—'} %).</li>`];
+  if(margeNeed<=100) opts.push(`<li><strong>Marge :</strong> passer de ${S.mar} % à <strong>${margeNeed.toFixed(1)} %</strong> avec les mêmes ventes.</li>`);
+  if(coupe<S.chg) opts.push(`<li><strong>Charges :</strong> les réduire de <strong>${fmt(coupe)}</strong> par mois.</li>`);
+  if(partNeed<=100) opts.push(`<li><strong>Épargne :</strong> consacrer <strong>${Math.ceil(partNeed)} %</strong> du bénéfice à l'objectif au lieu de ${S.pso} %.</li>`);
+  opts.push(`<li><strong>Le plus réaliste, en combinant :</strong> +${fmt(mix)} de ventes par jour <em>et</em> ${fmt(mixC)} de charges en moins par mois.</li>`);
+  v=`<div class="verdict no"><strong>Il manque ${fmt(gap)} par mois.</strong> Ton business apporte ${fmt(apport)} sur ${fmt(need)} nécessaires. Choisis un levier ou combine-les :<ul class="tips">${opts.join('')}</ul></div>`}
+ $('bverdict').innerHTML=v;
+ const L=LEV[S.biz];
+ $('lv1').innerHTML=L.v.map(x=>`<li>${x}</li>`).join('');
+ $('lv2').innerHTML=L.m.map(x=>`<li>${x}</li>`).join('');
+ $('lv3').innerHTML=L.c.map(x=>`<li>${x}</li>`).join('');
+ const sem=[['Semaine 1','Mesurer',`Note chaque vente et chaque dépense. Calcule ta vraie marge sur tes 5 produits ou services principaux.`],
+  ['Semaine 2','Couper',`Applique un levier « charges » ci-dessus. Commence à verser ${fmt(need*12/52)} par semaine, même si c'est dur.`],
+  ['Semaine 3','Vendre plus',`Teste un levier « ventes ». Objectif du jour : ${m>0&&part>0?fmt((need/part+S.chg)/(j*m)):'—'} de ventes.`],
+  ['Semaine 4','Bilan',`Compare ventes, marge et versements avec le plan. Garde ce qui marche, change ce qui ne marche pas.`]];
+ $('plan4').innerHTML=sem.map(s=>`<div class="card"><span style="color:var(--mute);font-size:14px">${s[0]}</span><br><strong>${s[1]}</strong><br><span style="font-size:14px">${s[2]}</span></div>`).join('');
+ $('useRev').disabled=ben<=0;
+}
+$('useRev').addEventListener('click',()=>{const b=BIZ[S.biz];const ben=S.ven*b.jours*S.mar/100-S.chg;if(ben>0){S.rev=Math.round(ben);$('rev').value=S.rev;save();render();location.hash='repartir'}});
+
+function rythmeOf(b){return (S.prof==='sal'||S.prof==='retraite'||S.prof==='etu')&&S.biz==='immo'?'mensuel':b.ry}
+function renderAlerts(P,b){
+ const ry=rythmeOf(b), now=new Date(), today=now.toISOString().slice(0,10);
+ const st=new Date(S.start||today), days=Math.max(0,Math.floor((now-st)/864e5));
+ const after=S.v.filter(x=>x.d>=S.start), done=after.reduce((a,x)=>a+x.m,0);
+ const [hh,mm]=(S.rh||'19:00').split(':').map(Number), pastHour=now.getHours()*60+now.getMinutes()>=hh*60+mm;
+ let due=0, unit='';
+ if(ry==='quotidien'){const n=days+(pastHour?1:0);due=P.need/b.jours*n*(b.jours/30.4);unit='jour'}
+ else if(ry==='hebdomadaire'){due=P.need*12/52*Math.floor((days+(now.getDay()===1&&pastHour?1:0))/7);unit='semaine'}
+ else{let m=(now.getFullYear()-st.getFullYear())*12+now.getMonth()-st.getMonth();if(now.getDate()>=S.jp)m++;if(st.getDate()>=S.jp)m--;due=P.need*Math.max(0,m);unit='mois'}
+ const A=[];
+ const late=due-done;
+ if(P.T>P.D&&late>P.need*0.05) A.push(['Versements en retard',`Selon ton plan, tu devrais avoir versé ${fmt(due)} depuis le ${new Date(S.start).toLocaleDateString('fr-FR')}. Tu as versé ${fmt(done)}. Il manque <strong>${fmt(late)}</strong>.`,'suivi','Enregistrer un versement']);
+ const last=S.v.length?S.v.map(x=>x.d).sort().pop():null, todayDone=S.v.some(x=>x.d===today);
+ const gap=last?Math.floor((now-new Date(last))/864e5):days, lim={quotidien:2,hebdomadaire:8,mensuel:32,saisonnier:32}[ry];
+ if(!A.length&&ry==='quotidien'&&pastHour&&!todayDone&&P.T>P.D) A.push(['Versement du jour',`Il est plus de ${S.rh} et tu n'as pas encore mis de côté les ${fmt(P.need/b.jours)} d'aujourd'hui.`,'suivi','Verser maintenant']);
+ else if(!A.length&&gap>lim&&P.T>P.D) A.push(['Pas de versement depuis '+gap+' jours',`Ton rythme est ${ry}. Reprends dès aujourd'hui, même avec un petit montant.`,'suivi','Reprendre']);
+ const nb=Object.values(S.h).filter(Boolean).length, wd=(now.getDay()+6)%7;
+ if(wd>=3&&nb<3) A.push(['Engagements de la semaine',`Seulement ${nb} engagement(s) coché(s) sur ${HABITS.length}, et la semaine est bien avancée.`,'discipline','Voir mes engagements']);
+ $('nAl').textContent=A.length||'';
+ window.__alerts=A;
+ $('alertBox').innerHTML=A.length?`<h2 style="font-size:22px">Alertes (${A.length})</h2>`+A.map(a=>`<div class="verdict no"><strong>${a[0]}</strong><br>${a[1]}<br><a href="#${a[2]}" style="color:inherit;font-weight:600">${a[3]} →</a></div>`).join('')
+  :`<div class="verdict"><strong>Tout est à jour.</strong> Prochain versement : ${ry==='mensuel'||ry==='saisonnier'?'le '+S.jp+' du mois':ry==='hebdomadaire'?'lundi':'aujourd\'hui'} à ${S.rh}.</div>`;
+ const R={quotidien:[`Chaque jour de travail à ${S.rh} : verser ${fmt(P.need/b.jours)}.`,`Chaque samedi : déposer la semaine (${fmt(P.need*12/52)}) sur le compte ou mobile money.`],
+  hebdomadaire:[`Chaque lundi à ${S.rh} : verser ${fmt(P.need*12/52)}.`],
+  mensuel:[`Le ${S.jp} de chaque mois à ${S.rh} : verser ${fmt(P.need)}.`],
+  saisonnier:[`Le ${S.jp} de chaque mois à ${S.rh} : verser au moins ${fmt(P.need)}, plus après une récolte.`]}[ry];
+ R.push(`Chaque dimanche à ${S.rh} : bilan de la semaine et engagements.`,`Fin du plan : ${new Date(st.getFullYear(),st.getMonth()+P.n,st.getDate()).toLocaleDateString('fr-FR')} pour atteindre ${fmt(P.T)}.`);
+ if(ry==='saisonnier') R.splice(1,0,`À chaque vente, mets de côté au moins ${b.re} % pour le prochain cycle avant tout le reste.`);
+ $('rythme').innerHTML=R.map(x=>`<li>${x}</li>`).join('');
+}
+
+function renderHome(P,b){
+ const sorted=[...S.v].sort((a,c)=>a.d.localeCompare(c.d));
+ const tot=P.D+sorted.reduce((a,x)=>a+x.m,0);
+ const mois=new Date().toISOString().slice(0,7);
+ const ceMois=sorted.filter(x=>x.d.startsWith(mois)).reduce((a,x)=>a+x.m,0);
+ const avant=tot-ceMois, pct=avant>0?ceMois/avant*100:(ceMois>0?100:0);
+ $('hSolde').innerHTML=`${Math.round(tot).toLocaleString('fr-FR')} <span class="unit">FCFA</span>`;
+ $('hVar').className='var'+(ceMois>0?' up':'');
+ $('hVar').textContent=ceMois>0?`▲ +${fmt(ceMois)} (+${pct.toFixed(1)} %) ce mois`:`0 FCFA versé ce mois`;
+ const prog=P.T?Math.min(100,tot/P.T*100):0;
+ const end=new Date(new Date(S.start).getFullYear(),new Date(S.start).getMonth()+P.n,new Date(S.start).getDate());
+ const jr=Math.max(0,Math.ceil((end-new Date())/864e5));
+ const ben=S.ven*b.jours*S.mar/100-S.chg;
+ $('hKpis').innerHTML=`<div class="card hl"><span>Objectif</span><strong>${fmt(P.T)}</strong></div>
+  <div class="card"><span>Jours restants</span><strong>${jr} j</strong></div>
+  <div class="card"><span>Versé ce mois / prévu</span><strong>${Math.round(ceMois/1000)}k / ${Math.round(P.need/1000)}k</strong></div>`;
+ const urg=S.rev*P.p.urgence/100, besoins=S.rev*P.p.besoins/100*3;
+ const pos=[['Objectif principal',`Reste ${fmt(Math.max(0,P.T-tot))} à épargner`,prog.toFixed(1)+' %',prog],
+  ['Fonds d\'urgence (cible 3 mois)',`${fmt(urg)} à mettre chaque mois`,fmt(besoins),0],
+  ['Business · bénéfice du mois',ben>0?`${fmt(Math.max(0,ben)*S.pso/100)} par mois vers l'objectif`:'Pas encore rentable',fmt(ben),0]];
+ $('hPos').innerHTML=pos.map(p=>`<div class="pos"><div><strong>${p[0]}</strong><br><small>${p[1]}</small></div><b>${p[2]}</b>${p[3]?`<div class="pb"><i style="width:${p[3]}%"></i></div>`:''}</div>`).join('');
+ drawSpark(P,sorted);
+}
+function drawSpark(P,sorted){
+ const sv=$('spark');const W=sv.clientWidth,H=sv.clientHeight;if(!W)return;
+ const t=d=>new Date(d).getTime();const st=S.start;let acc=P.D;const pts=[[st,acc]];
+ sorted.forEach(x=>{acc+=x.m;pts.push([x.d,acc])});
+ if(pts.length<2||pts.every(p=>p[0]===pts[0][0])){const e=new Date(t(pts[0][0])+30*864e5).toISOString().slice(0,10);pts.push([e,acc])}
+ const t0=Math.min(...pts.map(p=>t(p[0]))), t1=Math.max(t0+864e5,...pts.map(p=>t(p[0])));
+ const max=Math.max(...pts.map(p=>p[1]))*1.1||1, pad=14;
+ const X=d=>pad+(W-2*pad)*(t(d)-t0)/(t1-t0), Y=v=>H-pad-(H-2*pad)*v/max;
+ const l=pts.map((p,i)=>`${i?'L':'M'}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join('');
+ const last=pts[pts.length-1];
+ sv.innerHTML=`<defs><linearGradient id="gS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16c784" stop-opacity=".4"/><stop offset="1" stop-color="#16c784" stop-opacity="0"/></linearGradient></defs>
+ <path d="${l}L${X(last[0])},${H-pad}L${X(pts[0][0])},${H-pad}Z" fill="url(#gS)"/><path d="${l}" fill="none" stroke="#16c784" stroke-width="2.5"/>
+ <circle cx="${X(last[0])}" cy="${Y(last[1])}" r="5" fill="#16c784" stroke="#0b0f17" stroke-width="2"/>`;
+}
+const ro2=new ResizeObserver(()=>render()); ro2.observe($('spark'));
+
+const svg=$('chart');
+function draw(){
+ const P=plan(), W=svg.clientWidth, H=svg.clientHeight; if(!W)return;
+ const n=Math.max(P.n,1), pad={l:W<520?10:70,r:16,t:20,b:30};
+ const pts=[...Array(n+1)].map((_,m)=>bal(P.D,P.need,P.r,m));
+ const max=Math.max(P.T,...pts)*1.08||1;
+ const x=m=>pad.l+(W-pad.l-pad.r)*m/n, y=v=>H-pad.b-(H-pad.t-pad.b)*v/max;
+ const line=pts.map((v,m)=>`${m?'L':'M'}${x(m).toFixed(1)},${y(v).toFixed(1)}`).join('');
+ const area=line+`L${x(n)},${y(0)}L${x(0)},${y(0)}Z`;
+ const ticks=W<520?'':[0,.5,1].map(f=>`<text x="${pad.l-8}" y="${y(max/1.08*f)+4}" text-anchor="end" font-size="12" fill="currentColor" opacity=".6">${Math.round(max/1.08*f/1000)}k</text>`).join('');
+ const step=Math.ceil(n/(W<520?4:8));
+ const xl=[...Array(n+1)].map((_,m)=>m%step&&m!==n?'':`<text x="${x(m)}" y="${H-8}" text-anchor="middle" font-size="12" fill="currentColor" opacity=".6">M${m}</text>`).join('');
+ svg.style.color='#8592a6';
+ svg.innerHTML=`<defs><linearGradient id="gA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16c784" stop-opacity=".45"/><stop offset="1" stop-color="#16c784" stop-opacity="0"/></linearGradient><filter id="gl"><feGaussianBlur stdDeviation="3"/></filter></defs>
+ ${[.25,.5,.75].map(f=>`<line x1="${pad.l}" x2="${W-pad.r}" y1="${y(max/1.08*f)}" y2="${y(max/1.08*f)}" stroke="#1f2838"/>`).join('')}
+ <path d="${area}" fill="url(#gA)"/><path d="${line}" fill="none" stroke="#16c784" stroke-width="5" opacity=".35" filter="url(#gl)"/><path d="${line}" fill="none" stroke="#16c784" stroke-width="2.5"/>
+ <circle cx="${x(n)}" cy="${y(pts[n])}" r="5" fill="#16c784" stroke="#0b0f17" stroke-width="2"/>
+ <line x1="${pad.l}" x2="${W-pad.r}" y1="${y(P.T)}" y2="${y(P.T)}" stroke="#f0b90b" stroke-dasharray="5 5"/>
+ <text x="${W-pad.r}" y="${y(P.T)-8}" text-anchor="end" font-size="13" font-weight="600" fill="#f0b90b">Objectif ${fmt(P.T)}</text>
+ <line x1="${pad.l}" x2="${W-pad.r}" y1="${y(0)}" y2="${y(0)}" stroke="currentColor" opacity=".3"/>${ticks}${xl}`;
+}
+const ro=new ResizeObserver(draw); ro.observe($('fig'));
+
+document.addEventListener('click',e=>{
+ const m=e.target.closest('[data-m]'); if(m){S.meth=m.dataset.m;save();render()}
+ const d=e.target.closest('[data-del]'); if(d){S.v.splice(+d.dataset.del,1);save();render()}
+});
+document.addEventListener('change',e=>{if(e.target.dataset.h!==undefined){S.h[e.target.dataset.h]=e.target.checked;save();render()}});
+$('fv').addEventListener('submit',e=>{e.preventDefault();const m=+$('vm').value;if(!m)return;S.v.push({m,d:$('vd').value||new Date().toISOString().slice(0,10)});$('vm').value='';save();render()});
+let armed=false;
+$('reset').addEventListener('click',()=>{if(!armed){armed=true;$('reset').textContent='Confirmer : tout effacer ?';setTimeout(()=>{armed=false;$('reset').textContent='Tout effacer'},4000);return}
+ S.v=[];S.h={};save();armed=false;$('reset').textContent='Tout effacer';render()});
+const body=document.body,bg=$('burger');
+const setOpen=o=>{body.classList.toggle('open',o);bg.setAttribute('aria-expanded',o)};
+bg.addEventListener('click',()=>setOpen(true));$('closeD').addEventListener('click',()=>setOpen(false));$('scrim').addEventListener('click',()=>setOpen(false));
+document.querySelectorAll('.dl').forEach(a=>a.addEventListener('click',()=>setOpen(false)));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')setOpen(false)});
+const PAGES=[...document.querySelectorAll('main>section')].map(x=>x.id);
+const show=()=>{const h=location.hash.slice(1);const id=PAGES.includes(h)?h:'accueil';
+ document.querySelectorAll('main>section').forEach(x=>x.classList.toggle('cur',x.id===id));
+ document.querySelectorAll('.dl').forEach(a=>a.classList.toggle('on',a.dataset.s===id));scrollTo(0,0);draw()};
+addEventListener('hashchange',show);show();
+/* ---- App installable : service worker, installation, notifications ---- */
+if('serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+let deferred=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('installCard').style.display='block'});
+$('installBtn').addEventListener('click',async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice.catch(()=>{});deferred=null;$('installCard').style.display='none'});
+addEventListener('appinstalled',()=>{$('installCard').style.display='none'});
+const canNotify='Notification' in window;
+const notifUI=()=>{const b=$('notifBtn'),t=$('notifTxt');
+ if(!canNotify){b.style.display='none';t.textContent="Ce navigateur ne gère pas les notifications. Installe l'application depuis Chrome pour les activer.";return}
+ if(Notification.permission==='granted'){b.style.display='none';t.textContent="Notifications activées. Tu seras prévenu(e) des versements et engagements en retard à l'ouverture de l'app et pendant qu'elle tourne.";}
+ else if(Notification.permission==='denied'){b.style.display='none';t.textContent="Notifications bloquées. Autorise-les dans les réglages du téléphone pour cette application.";}};
+notifUI();
+$('notifBtn').addEventListener('click',async()=>{try{await Notification.requestPermission()}catch(e){}notifUI();notify(true)});
+async function notify(force){
+ if(!canNotify||Notification.permission!=='granted')return;
+ const A=window.__alerts||[];const day=new Date().toISOString().slice(0,10);
+ let sent={};try{sent=JSON.parse(localStorage.getItem('planfin-notif')||'{}')}catch(e){}
+ const reg=await navigator.serviceWorker?.getRegistration?.().catch(()=>null);
+ for(const a of A){const key=day+'|'+a[0].replace(/\d+/g,'');if(sent[key]&&!force)continue;
+  const txt=a[1].replace(/<[^>]+>/g,''), opt={body:txt,icon:'icons/icon-192.png',badge:'icons/icon-192.png',tag:a[0].replace(/\d+/g,''),data:{url:'./#'+a[2]}};
+  try{reg?await reg.showNotification(a[0],opt):new Notification(a[0],opt)}catch(e){}
+  sent[key]=1}
+ try{localStorage.setItem('planfin-notif',JSON.stringify(sent))}catch(e){}
+}
+setTimeout(()=>notify(false),1500);
+setInterval(()=>{render();notify(false)},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){render();notify(false)}});
+
+render();
+}
+</script>
+</body>
+</html>
