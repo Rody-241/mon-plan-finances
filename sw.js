@@ -1,5 +1,5 @@
 // Mon Plan Finances — service worker : fonctionnement hors connexion + clic sur notification.
-const VERSION = 'mpf-v2';
+const VERSION = 'mpf-v3';
 const SHELL = [
   './',
   './index.html',
@@ -31,7 +31,7 @@ self.addEventListener('fetch', (e) => {
   // Page : réseau d'abord (pour recevoir les mises à jour), cache si hors connexion.
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-store' })
         .then((res) => { const copy = res.clone(); caches.open(VERSION).then((c) => c.put('./index.html', copy)); return res; })
         .catch(() => caches.match('./index.html'))
     );
