@@ -1,5 +1,5 @@
 // Mon Plan Finances — service worker : fonctionnement hors connexion + clic sur notification.
-const VERSION = 'mpf-v1';
+const VERSION = 'mpf-v2';
 const SHELL = [
   './',
   './index.html',

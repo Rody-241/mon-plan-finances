@@ -121,6 +121,19 @@ details.more ul.tips{padding-left:36px}
 <main id="main">
 
 <section class="band" id="accueil"><div class="wrap">
+  <form id="welcome" style="display:none">
+    <h2>Bienvenue</h2>
+    <p class="lead">Quelques infos pour créer ton plan. Tu pourras tout modifier ensuite.</p>
+    <div class="grid f">
+      <div><label for="w_prof">Ta situation</label><select id="w_prof"></select></div>
+      <div><label for="w_rev">Argent reçu par mois (FCFA)</label><input id="w_rev" type="number" inputmode="numeric" min="1" step="1" placeholder="ex. 150000" required></div>
+      <div><label for="w_cib">Montant à atteindre (FCFA)</label><input id="w_cib" type="number" inputmode="numeric" min="1" step="1" placeholder="ex. 1000000" required></div>
+      <div><label for="w_dur">En combien de mois</label><input id="w_dur" type="number" inputmode="numeric" min="1" max="120" step="1" value="6" required></div>
+      <div><label for="w_deja">Déjà épargné (FCFA)</label><input id="w_deja" type="number" inputmode="numeric" min="0" step="1" placeholder="0"></div>
+    </div>
+    <button type="submit" style="margin-top:16px;width:100%">Créer mon plan</button>
+  </form>
+  <div id="dash">
   <div class="pf">
     <div>
       <span class="lbl">Mon épargne totale</span>
@@ -138,6 +151,7 @@ details.more ul.tips{padding-left:36px}
     <button type="button" id="installBtn">Installer</button></div>
   <h3 style="margin:8px 0 6px">Mes positions</h3>
   <div id="hPos"></div>
+  </div>
 </div></section>
 
 <section class="band" id="alertes"><div class="wrap" id="alertBox"></div></section>
@@ -147,7 +161,7 @@ details.more ul.tips{padding-left:36px}
   <p class="lead">Entre ton revenu : il est découpé en enveloppes.</p>
   <div class="grid f">
     <div><label for="prof">Ta situation</label><select id="prof"><option value="etu">Étudiant(e)</option><option value="sal">Salarié(e)</option><option value="biz">Commerçant(e) / entrepreneur</option><option value="mix">Salarié(e) + activité à côté</option><option value="cherche">Sans emploi / en recherche</option><option value="retraite">Retraité(e)</option></select></div>
-    <div><label for="rev" id="revL">Revenu du mois (FCFA)</label><input id="rev" type="number" inputmode="numeric" min="0" step="1000" value="350000"></div>
+    <div><label for="rev" id="revL">Revenu du mois (FCFA)</label><input id="rev" type="number" inputmode="numeric" min="0" step="1000" placeholder="ex. 150000"></div>
   </div>
   <p class="note" id="profNote" style="margin-top:8px"></p>
   <div class="seg" role="group" aria-label="Méthode de répartition" id="meth"></div>
@@ -159,9 +173,9 @@ details.more ul.tips{padding-left:36px}
   <h2>Mon objectif</h2>
   <p class="lead">Montant, durée et activité.</p>
   <div class="grid f">
-    <div><label for="cib">Montant visé (FCFA)</label><input id="cib" type="number" inputmode="numeric" min="0" step="10000" value="1000000"></div>
+    <div><label for="cib">Montant visé (FCFA)</label><input id="cib" type="number" inputmode="numeric" min="0" step="10000" placeholder="ex. 1000000"></div>
     <div><label for="dur">Durée (mois)</label><input id="dur" type="number" inputmode="numeric" min="1" max="120" value="6"></div>
-    <div><label for="deja">Déjà épargné (FCFA)</label><input id="deja" type="number" inputmode="numeric" min="0" step="1000" value="50000"></div>
+    <div><label for="deja">Déjà épargné (FCFA)</label><input id="deja" type="number" inputmode="numeric" min="0" step="1000" placeholder="0"></div>
     <div><label for="biz">Ton business / projet</label><select id="biz"></select></div>
     <div><label for="taux">Rendement par mois (%)</label><input id="taux" type="number" inputmode="decimal" min="0" max="20" step="0.5" value="0"></div>
   </div>
@@ -175,9 +189,9 @@ details.more ul.tips{padding-left:36px}
   <h2>Mon business</h2>
   <p class="lead">Ce que ton activité rapporte et ce qu'il faut changer.</p>
   <div class="grid f">
-    <div><label for="ven">Ventes moyennes par jour (FCFA)</label><input id="ven" type="number" inputmode="numeric" min="0" step="1000" value="40000"></div>
-    <div><label for="mar">Marge sur tes ventes (%)</label><input id="mar" type="number" inputmode="decimal" min="0" max="100" step="1" value="30"></div>
-    <div><label for="chg">Charges fixes du mois (FCFA)</label><input id="chg" type="number" inputmode="numeric" min="0" step="1000" value="120000"></div>
+    <div><label for="ven">Ventes moyennes par jour (FCFA)</label><input id="ven" type="number" inputmode="numeric" min="0" step="1000" placeholder="ex. 40000"></div>
+    <div><label for="mar">Marge sur tes ventes (%)</label><input id="mar" type="number" inputmode="decimal" min="0" max="100" step="1" placeholder="ex. 30"></div>
+    <div><label for="chg">Charges fixes du mois (FCFA)</label><input id="chg" type="number" inputmode="numeric" min="0" step="1000" placeholder="ex. 120000"></div>
     <div><label for="pso">Part du bénéfice pour l'objectif (%)</label><input id="pso" type="number" inputmode="numeric" min="0" max="100" step="5" value="40"></div>
   </div>
   <details class="more" style="margin-top:12px"><summary>C'est quoi la marge et les charges ?</summary><p class="note" style="margin:0">Marge : sur 1 000 FCFA vendus, ce qu'il te reste une fois la marchandise payée (ex. achat 700, vente 1 000 = 30 %). Charges fixes : loyer, salaires, électricité, transport, taxes.</p></details>
@@ -221,7 +235,7 @@ details.more ul.tips{padding-left:36px}
   <table><thead><tr><th>Date</th><th style="text-align:right">Montant</th><th></th></tr></thead><tbody id="lst"></tbody></table>
   <p id="empty" class="note">Aucun versement encore. Commence aujourd'hui, même petit : c'est la régularité qui compte.</p>
   <p class="note">Tes chiffres restent enregistrés sur ce téléphone uniquement. Les conseils sont des repères généraux, pas un conseil financier personnalisé.</p>
-  <button class="ghost" id="reset" type="button">Tout effacer</button>
+  <button class="ghost" id="reset" type="button">Tout effacer et recommencer</button>
 </div></section>
 
 </main>
@@ -268,14 +282,22 @@ const PROF={
 };
 const HABITS=['Je verse mon montant prévu au bon rythme','Je note toutes mes dépenses','Je ne touche pas au fonds d\'urgence','Je refuse un achat impulsif','Je sépare argent du business et argent perso','Je relis mon objectif et ma progression'];
 
-let S={rh:'19:00',jp:25,start:new Date().toISOString().slice(0,10),hw:'',rev:350000,prof:'sal',meth:'equil',cib:1000000,dur:6,deja:50000,biz:'commerce',taux:0,ven:40000,mar:30,chg:120000,pso:40,v:[],h:{}};
-try{Object.assign(S,JSON.parse(localStorage.getItem('planfin')||'{}'))}catch(e){}
-const save=()=>{try{localStorage.setItem('planfin',JSON.stringify(S))}catch(e){}};
+let S={rh:'19:00',jp:25,start:new Date().toISOString().slice(0,10),hw:'',setup:false,rev:0,prof:'sal',meth:'equil',cib:0,dur:6,deja:0,biz:'commerce',taux:0,ven:0,mar:0,chg:0,pso:40,v:[],h:{}};
+try{Object.assign(S,JSON.parse(localStorage.getItem('mpf-data')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('mpf-data',JSON.stringify(S))}catch(e){}};
 
 $('biz').innerHTML=Object.entries(BIZ).map(([k,b])=>`<option value="${k}">${b.n}</option>`).join('');
 const wk=()=>{const d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return d.toISOString().slice(0,10)};
 if(S.hw!==wk()){S.h={};S.hw=wk();save()}
-['rev','prof','cib','dur','deja','biz','taux','ven','mar','chg','pso','rh','jp','start'].forEach(k=>{$(k).value=S[k];$(k).addEventListener('input',()=>{S[k]=$(k).type==='number'?Math.max(0,+$(k).value||0):$(k).value;save();render()})});
+const EMPTY0=['rev','cib','deja','ven','mar','chg'];
+const syncInputs=()=>['rev','prof','cib','dur','deja','biz','taux','ven','mar','chg','pso','rh','jp','start'].forEach(k=>{$(k).value=(EMPTY0.includes(k)&&!S[k])?'':S[k]});
+['rev','prof','cib','dur','deja','biz','taux','ven','mar','chg','pso','rh','jp','start'].forEach(k=>$(k).addEventListener('input',()=>{S[k]=$(k).type==='number'?Math.max(0,+$(k).value||0):$(k).value;
+ if(!S.setup&&S.cib>0){S.setup=true;S.start=new Date().toISOString().slice(0,10);$('start').value=S.start}save();render()}));
+syncInputs();
+$('w_prof').innerHTML=$('prof').innerHTML;$('w_prof').value=S.prof;
+$('welcome').addEventListener('submit',e=>{e.preventDefault();
+ S.prof=$('w_prof').value;S.rev=Math.max(0,+$('w_rev').value||0);S.cib=Math.max(0,+$('w_cib').value||0);S.dur=Math.max(1,+$('w_dur').value||6);S.deja=Math.max(0,+$('w_deja').value||0);
+ S.setup=true;S.start=new Date().toISOString().slice(0,10);S.v=[];S.h={};save();syncInputs();render();location.hash='accueil';scrollTo(0,0)});
 $('vd').valueAsDate=new Date();
 
 function plan(){
@@ -298,6 +320,9 @@ function render(){
  $('envs').innerHTML=Object.entries(P.p).map(([k,v])=>`<div class="env"><span class="dot" style="background:${ENV[k].c}"></span><div><strong>${ENV[k].n}</strong> · ${v} %<small>${ENV[k].d}</small></div><b>${fmt(S.rev*v/100)}</b></div>`).join('');
 
  const per=P.need, j=b.jours;
+ $('fig').style.display=S.cib?'':'none';
+ if(!S.cib){$('kpis').innerHTML='';$('verdict').innerHTML=`<div class="verdict">Entre le montant que tu veux atteindre et la durée : ton plan s'affiche ici.</div>`;$('miles').innerHTML=''}
+ else{
  $('kpis').innerHTML=`<div class="card hl"><span>À mettre de côté par mois</span><strong>${fmt(per)}</strong></div>
   <div class="card"><span>Par semaine</span><strong>${fmt(per*12/52)}</strong></div>
   <div class="card"><span>Par jour de travail (${j} j/mois)</span><strong>${fmt(per/j)}</strong></div>
@@ -313,6 +338,7 @@ function render(){
  const today=new Date(), ms=[.25,.5,.75,1];
  $('miles').innerHTML=ms.map(f=>{let m=0;const tgt=P.D+(P.T-P.D)*f;while(m<P.n&&bal(P.D,P.need,P.r,m)<tgt-1)m++;const d=new Date(today.getFullYear(),today.getMonth()+m,today.getDate());
   return`<div class="card"><span style="color:var(--mute);font-size:14px">Palier ${f*100} %</span><br><strong>${fmt(tgt)}</strong><br><span style="font-size:14px">vers ${d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})}</span></div>`}).join('');
+ }
  draw();
 
  renderBiz(P,b);
@@ -333,6 +359,8 @@ function render(){
 function renderBiz(P,b){
  const j=b.jours, m=S.mar/100, part=S.pso/100;
  const ca=S.ven*j, marge=ca*m, ben=marge-S.chg, apport=Math.max(0,ben)*part, need=P.need;
+ const L0=LEV[S.biz];$('lv1').innerHTML=L0.v.map(x=>`<li>${x}</li>`).join('');$('lv2').innerHTML=L0.m.map(x=>`<li>${x}</li>`).join('');$('lv3').innerHTML=L0.c.map(x=>`<li>${x}</li>`).join('');
+ if(!S.ven||!S.mar){$('bkpis').innerHTML='';$('bverdict').innerHTML=`<div class="verdict">Entre tes ventes par jour, ta marge et tes charges : l'application calcule ce que ton activité rapporte et les ventes à faire pour ton objectif.</div>`;$('plan4').innerHTML='<p class="note" style="margin:0">Remplis tes chiffres pour voir ton plan.</p>';$('useRev').disabled=true;return}
  $('bkpis').innerHTML=`<div class="card"><span>Chiffre d'affaires du mois</span><strong>${fmt(ca)}</strong></div>
   <div class="card"><span>Bénéfice net du mois</span><strong style="color:inherit">${fmt(ben)}</strong></div>
   <div class="card"><span>Apport à l'objectif (${S.pso} %)</span><strong>${fmt(apport)}</strong></div>
@@ -372,6 +400,7 @@ $('useRev').addEventListener('click',()=>{const b=BIZ[S.biz];const ben=S.ven*b.j
 
 function rythmeOf(b){return (S.prof==='sal'||S.prof==='retraite'||S.prof==='etu')&&S.biz==='immo'?'mensuel':b.ry}
 function renderAlerts(P,b){
+ if(!S.setup||!S.cib){$('nAl').textContent='';window.__alerts=[];$('alertBox').innerHTML=`<h2>Alertes</h2><div class="verdict">Aucune alerte. Crée ton plan dans le Portefeuille pour être prévenu(e) des retards.</div>`;$('rythme').innerHTML='<li>Crée ton plan pour recevoir ton rythme de versement.</li>';return}
  const ry=rythmeOf(b), now=new Date(), today=now.toISOString().slice(0,10);
  const st=new Date(S.start||today), days=Math.max(0,Math.floor((now-st)/864e5));
  const after=S.v.filter(x=>x.d>=S.start), done=after.reduce((a,x)=>a+x.m,0);
@@ -385,10 +414,10 @@ function renderAlerts(P,b){
  if(P.T>P.D&&late>P.need*0.05) A.push(['Versements en retard',`Selon ton plan, tu devrais avoir versé ${fmt(due)} depuis le ${new Date(S.start).toLocaleDateString('fr-FR')}. Tu as versé ${fmt(done)}. Il manque <strong>${fmt(late)}</strong>.`,'suivi','Enregistrer un versement']);
  const last=S.v.length?S.v.map(x=>x.d).sort().pop():null, todayDone=S.v.some(x=>x.d===today);
  const gap=last?Math.floor((now-new Date(last))/864e5):days, lim={quotidien:2,hebdomadaire:8,mensuel:32,saisonnier:32}[ry];
- if(!A.length&&ry==='quotidien'&&pastHour&&!todayDone&&P.T>P.D) A.push(['Versement du jour',`Il est plus de ${S.rh} et tu n'as pas encore mis de côté les ${fmt(P.need/b.jours)} d'aujourd'hui.`,'suivi','Verser maintenant']);
+ if(!A.length&&days>=1&&ry==='quotidien'&&pastHour&&!todayDone&&P.T>P.D) A.push(['Versement du jour',`Il est plus de ${S.rh} et tu n'as pas encore mis de côté les ${fmt(P.need/b.jours)} d'aujourd'hui.`,'suivi','Verser maintenant']);
  else if(!A.length&&gap>lim&&P.T>P.D) A.push(['Pas de versement depuis '+gap+' jours',`Ton rythme est ${ry}. Reprends dès aujourd'hui, même avec un petit montant.`,'suivi','Reprendre']);
  const nb=Object.values(S.h).filter(Boolean).length, wd=(now.getDay()+6)%7;
- if(wd>=3&&nb<3) A.push(['Engagements de la semaine',`Seulement ${nb} engagement(s) coché(s) sur ${HABITS.length}, et la semaine est bien avancée.`,'discipline','Voir mes engagements']);
+ if(days>=3&&wd>=3&&nb<3) A.push(['Engagements de la semaine',`Seulement ${nb} engagement(s) coché(s) sur ${HABITS.length}, et la semaine est bien avancée.`,'discipline','Voir mes engagements']);
  $('nAl').textContent=A.length||'';
  window.__alerts=A;
  $('alertBox').innerHTML=A.length?`<h2 style="font-size:22px">Alertes (${A.length})</h2>`+A.map(a=>`<div class="verdict no"><strong>${a[0]}</strong><br>${a[1]}<br><a href="#${a[2]}" style="color:inherit;font-weight:600">${a[3]} →</a></div>`).join('')
@@ -403,6 +432,8 @@ function renderAlerts(P,b){
 }
 
 function renderHome(P,b){
+ $('welcome').style.display=S.setup?'none':'block';$('dash').style.display=S.setup?'':'none';
+ if(!S.setup)return;
  const sorted=[...S.v].sort((a,c)=>a.d.localeCompare(c.d));
  const tot=P.D+sorted.reduce((a,x)=>a+x.m,0);
  const mois=new Date().toISOString().slice(0,7);
@@ -421,7 +452,7 @@ function renderHome(P,b){
  const urg=S.rev*P.p.urgence/100, besoins=S.rev*P.p.besoins/100*3;
  const pos=[['Objectif principal',`Reste ${fmt(Math.max(0,P.T-tot))} à épargner`,prog.toFixed(1)+' %',prog],
   ['Fonds d\'urgence (cible 3 mois)',`${fmt(urg)} à mettre chaque mois`,fmt(besoins),0],
-  ['Business · bénéfice du mois',ben>0?`${fmt(Math.max(0,ben)*S.pso/100)} par mois vers l'objectif`:'Pas encore rentable',fmt(ben),0]];
+  ...(S.ven&&S.mar?[['Business · bénéfice du mois',ben>0?`${fmt(Math.max(0,ben)*S.pso/100)} par mois vers l'objectif`:'Pas encore rentable',fmt(ben),0]]:[])];
  $('hPos').innerHTML=pos.map(p=>`<div class="pos"><div><strong>${p[0]}</strong><br><small>${p[1]}</small></div><b>${p[2]}</b>${p[3]?`<div class="pb"><i style="width:${p[3]}%"></i></div>`:''}</div>`).join('');
  drawSpark(P,sorted);
 }
@@ -443,7 +474,7 @@ const ro2=new ResizeObserver(()=>render()); ro2.observe($('spark'));
 
 const svg=$('chart');
 function draw(){
- const P=plan(), W=svg.clientWidth, H=svg.clientHeight; if(!W)return;
+ const P=plan(), W=svg.clientWidth, H=svg.clientHeight; if(!W||!S.cib)return;
  const n=Math.max(P.n,1), pad={l:W<520?10:70,r:16,t:20,b:30};
  const pts=[...Array(n+1)].map((_,m)=>bal(P.D,P.need,P.r,m));
  const max=Math.max(P.T,...pts)*1.08||1;
@@ -471,8 +502,8 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{if(e.target.dataset.h!==undefined){S.h[e.target.dataset.h]=e.target.checked;save();render()}});
 $('fv').addEventListener('submit',e=>{e.preventDefault();const m=+$('vm').value;if(!m)return;S.v.push({m,d:$('vd').value||new Date().toISOString().slice(0,10)});$('vm').value='';save();render()});
 let armed=false;
-$('reset').addEventListener('click',()=>{if(!armed){armed=true;$('reset').textContent='Confirmer : tout effacer ?';setTimeout(()=>{armed=false;$('reset').textContent='Tout effacer'},4000);return}
- S.v=[];S.h={};save();armed=false;$('reset').textContent='Tout effacer';render()});
+$('reset').addEventListener('click',()=>{if(!armed){armed=true;$('reset').textContent='Confirmer : tout effacer ?';setTimeout(()=>{armed=false;$('reset').textContent='Tout effacer et recommencer'},4000);return}
+ try{localStorage.removeItem('mpf-data');localStorage.removeItem('planfin-notif')}catch(e){}location.hash='accueil';location.reload()});
 const body=document.body,bg=$('burger');
 const setOpen=o=>{body.classList.toggle('open',o);bg.setAttribute('aria-expanded',o)};
 bg.addEventListener('click',()=>setOpen(true));$('closeD').addEventListener('click',()=>setOpen(false));$('scrim').addEventListener('click',()=>setOpen(false));
